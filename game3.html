@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة البطاقات</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-gap: 10px;
+            justify-content: center;
+            margin: 20px auto;
+        }
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #3498db;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .card.flipped {
+            background-color: #2ecc71;
+        }
+        .card.matched {
+            background-color: #95a5a6;
+            pointer-events: none;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة البطاقات</h1>
+    <p>قم بمطابقة جميع البطاقات للفوز!</p>
+    <div class="game-board" id="gameBoard"></div>
+    <button onclick="resetGame()">إعادة اللعبة</button>
+
+    <script>
+        const cardsArray = ['🍎', '🍌', '🍇', '🍓', '🍎', '🍌', '🍇', '🍓', '🍍', '🍉', '🍍', '🍉', '🍒', '🍑', '🍒', '🍑'];
+        let shuffledCards = [];
+        let flippedCards = [];
+        let matchedCards = 0;
+
+        // دالة لخلط البطاقات
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // إعداد اللعبة
+        function setupGame() {
+            const gameBoard = document.getElementById('gameBoard');
+            gameBoard.innerHTML = '';
+            shuffledCards = [...cardsArray];
+            shuffle(shuffledCards);
+
+            shuffledCards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('card');
+                cardElement.dataset.cardValue = card;
+                cardElement.addEventListener('click', () => flipCard(cardElement));
+                gameBoard.appendChild(cardElement);
+            });
+        }
+
+        // دالة لقلب البطاقة
+        function flipCard(card) {
+            if (card.classList.contains('flipped') || flippedCards.length === 2) return;
+
+            card.classList.add('flipped');
+            card.textContent = card.dataset.cardValue;
+            flippedCards.push(card);
+
+            if (flippedCards.length === 2) {
+                checkMatch();
+            }
+        }
+
+        // دالة للتحقق من التطابق
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+            if (card1.dataset.cardValue === card2.dataset.cardValue) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedCards += 2;
+                if (matchedCards === shuffledCards.length) {
+                    setTimeout(() => alert('تهانينا! لقد فزت! 🎉'), 500);
+                }
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    card1.textContent = '';
+                    card2.textContent = '';
+                }, 1000);
+            }
+            flippedCards = [];
+        }
+
+        // دالة لإعادة اللعبة
+        function resetGame() {
+            matchedCards = 0;
+            flippedCards = [];
+            setupGame();
+        }
+
+        // تشغيل اللعبة عند التحميل
+        setupGame();
+    </script>
+</body>
+</html>
